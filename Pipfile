@@ -5,6 +5,13 @@ name = "pypi"
 
 [packages]
 
+flask = "*"
+sqlalchemy = "*"
+flask-migrate = "*"
+flask-sqlalchemy = "*"
+flask-jwt-extended = "*"
+sqlalchemy-serializer = "*"
+
 [dev-packages]
 
 [requires]

@@ -5,6 +5,7 @@ from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'  # Change this to your database URI
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'your_secret_key'  # Change this to your desired secret key
 db = SQLAlchemy(app)
