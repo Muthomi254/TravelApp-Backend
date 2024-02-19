@@ -1,8 +1,8 @@
-"""Initial migration
+"""initial migration
 
-Revision ID: 86f1810e3325
+Revision ID: 059ead549e8b
 Revises: 
-Create Date: 2024-02-19 23:17:47.407587
+Create Date: 2024-02-20 00:41:01.373798
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '86f1810e3325'
+revision = '059ead549e8b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,12 +28,12 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('companies',
-    sa.Column('id', sa.String(length=6), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(length=64), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('password', sa.String(length=128), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
-    sa.Column('category', sa.Enum('Tourist', 'Provider'), nullable=True),
+    sa.Column('category', sa.Enum('Transport', 'Accommodaion'), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
@@ -41,13 +41,13 @@ def upgrade():
         batch_op.create_index(batch_op.f('ix_companies_name'), ['name'], unique=True)
 
     op.create_table('accomodation_services',
-    sa.Column('id', sa.String(length=6), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=64), nullable=False),
     sa.Column('location', sa.String(length=128), nullable=False),
     sa.Column('available_rooms', sa.Integer(), nullable=True),
-    sa.Column('images', sa.String(length=255), nullable=True),
-    sa.Column('price_per_night', sa.Float(), nullable=True),
-    sa.Column('avarage_rating', sa.Float(), nullable=True),
+    sa.Column('images', sa.String(length=255), nullable=False),
+    sa.Column('price_per_night', sa.Float(), nullable=False),
+    sa.Column('average_rating', sa.Float(), nullable=False),
     sa.Column('company_id', sa.String(length=6), nullable=True),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -117,7 +117,9 @@ def upgrade():
     )
     op.create_table('accomodation_bookings',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('accomodation_reservation_id', sa.Integer(), nullable=True),
     sa.Column('accomodation_service_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['accomodation_reservation_id'], ['reservation(accomodation).id'], ),
     sa.ForeignKeyConstraint(['accomodation_service_id'], ['accomodation_services.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

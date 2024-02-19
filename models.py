@@ -39,30 +39,30 @@ class Accomodation_service(db.Model,SerializerMixin):
     
     __tablename__ = "accomodation_services"
     
-    id = db.Column(db.String(6), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String(64), nullable=False)
     location=db.Column(db.String(128), nullable=False)
     available_rooms=db.Column(db.Integer,default=0) 
-    images = db.Column(db.String(255))
-    price_per_night=db.Column(db.Float)
-    avarage_rating=db.Column(db.Float)
+    images = db.Column(db.String(255), nullable=False)
+    price_per_night=db.Column(db.Float, nullable=False)
+    average_rating=db.Column(db.Float, nullable=False)
     
     company_id=db.Column(db.String(6),db.ForeignKey('companies.id'))
     
-class Company(db.Model,SerializerMixin):
+class Company(db.Model, SerializerMixin):
     
-    __tablename__='companies'
+    __tablename__ = 'companies'
     
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+    email = db.Column(db.String(120), unique=True)
+    password = db.Column(db.String(128))
+    description = db.Column(db.String)
+    category = db.Column(db.Enum('Transport', 'Accommodaion'))
     
-    id=db.Column(db.String(6), primary_key=True)
-    name=db.Column(db.String(64),index=True,unique=True)
-    email=db.Column(db.String(120),unique=True)
-    password=db.Column(db.String(128))
-    description=db.Column(db.String)
-    category = db.Column(db.Enum('Tourist', 'Provider'))
-    
-    accomodation_services = db.relationship('accomodation_services', backref='company')
-    traveling_service= db.relationship('travelling_services',backref="company")
+    accomodation_services = db.relationship('Accomodation_service', backref='company')
+    traveling_service = db.relationship('Travelling_service', backref="company")
+
     
 
     
@@ -145,17 +145,16 @@ class travel_booking(db.Model, SerializerMixin):
 
     
     
-class Accomodation_booking(db.Model,SerializerMixin):
+class Accomodation_booking(db.Model, SerializerMixin):
     
     __tablename__ = "accomodation_bookings"
     
-    id=db.Column(db.Integer,primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     
-    accomodation_reservation=db.Column(db.Integer,db.ForeignKey("reservation(accomodation).id"))
-    accomodation_service_id =db.Column(db.Integer,db.ForeignKey("accomodation_services.id"))
+    # Fix the relationship definition
+    accomodation_reservation_id = db.Column(db.Integer, db.ForeignKey("reservation(accomodation).id"))
+    accomodation_service_id = db.Column(db.Integer, db.ForeignKey("accomodation_services.id"))
     
-    accomodation_service=db.relationship("accomodation_services" ,backref="accomodation_bookings")
-    accomodation_reservation=db.relationship("accomodation_Reservation",backref="accomodation_bookings")
-     
-
+    accomodation_service = db.relationship("Accomodation_service", backref="accomodation_bookings")
+    accomodation_reservation = db.relationship("Reservation_accomodation", backref="accomodation_bookings")
 
