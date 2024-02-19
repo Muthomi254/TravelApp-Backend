@@ -13,13 +13,13 @@ CORS(app)  # Enable CORS for all routes
 
 # Define your models here
 
-from auth import auth_blueprint
-from accommodation import accommodation_blueprint
-from travel import travel_blueprint
+# from auth import auth_blueprint
+# from accommodation import accommodation_blueprint
+# from travel import travel_blueprint
 
-app.register_blueprint(auth_blueprint)
-app.register_blueprint(accommodation_blueprint)
-app.register_blueprint(travel_blueprint)
+# app.register_blueprint(auth_blueprint)
+# app.register_blueprint(accommodation_blueprint)
+# app.register_blueprint(travel_blueprint)
 
 # Import your blueprints here
 
