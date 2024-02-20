@@ -6,21 +6,21 @@ db=SQLAlchemy()
 
 class User(db.Model,SerializerMixin):
     
-    __tablename__ = "Users"
+    __tablename__ = "users"
     
     id =db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String(100),nullable=False)
-    email=db.Column(db.string(100),nullable=False)
-    phone_number=db.Column(db.string(50),nullable=False)
-    password=db.Column(db.string(80),nullable=False)
-    role=db.column(db.String(20))
+    email=db.Column(db.String(100),nullable=False)
+    phone_number=db.Column(db.String(50),nullable=False)
+    password=db.Column(db.String(80),nullable=False)
+    role=db.Column(db.String(20))
     
     
 class Travelling_service(db.Model,SerializerMixin):
     
     __tablename__ = "travelling_services"
     
-    id= db.Column("ts_id",db.Integer, primary_key=True)
+    id= db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String(64), nullable=False)
     seats=db.Column(db.Integer, default=1)
     depurture_time=db.Column(db.DateTime, nullable=False)
@@ -66,7 +66,7 @@ class Company(db.Model,SerializerMixin):
     
     
 class Review_travel(db.Model, SerializerMixin):
-    __tablename__ = "Reviews(travels)"
+    __tablename__ = "reviews_travels"
     
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Float, nullable=False)
@@ -78,13 +78,13 @@ class Review_travel(db.Model, SerializerMixin):
     travel_id = db.Column(db.String(6), db.ForeignKey('travelling_services.id'), nullable=False)
     review_count = db.Column(db.Integer, default=0)
     
-    travel = db.relationship('Travelling_services', backref='reviews')
+    travel = db.relationship('travelling_services', backref='reviews')
 
     
     
     
 class Review_accomodation(db.Model,SerializerMixin):
-    __tablename__= "Reviews(accomodation)"
+    __tablename__= "Reviews_accomodation"
     
     id=db.Column(db.Integer,primary_key=True)
     rating = db.Column(db.Float, nullable=False)
@@ -101,18 +101,18 @@ class Review_accomodation(db.Model,SerializerMixin):
     
 class Reservation_accomodation(db.Model,SerializerMixin):
     
-    __tablename__ ="reservation(accomodation)"
+    __tablename__ ="reservation_accomodation"
     
     id=db.Column(db.Integer, primary_key=True)
     people_included=db.Column(db.SmallInteger, nullable=False)
     date = db.Column(db.DateTime(), server_default=db.func.now())
     
     user_id=db.Column(db.Integer,db.ForeignKey('users.id', ondelete="CASCADE"),nullable=False)
-    user=db.relationship('users',backref="reservation(accomodation)") 
+    user=db.relationship('users',backref="reservation_accomodation") 
     
 class Reservation_travel(db.Model,SerializerMixin):
     
-    __tablename__ ="reservation(travels)"
+    __tablename__ ="reservation_travels"
     
     id=db.Column(db.Integer, primary_key=True)
     people_included=db.Column(db.SmallInteger, nullable=False)
@@ -124,7 +124,7 @@ class Reservation_travel(db.Model,SerializerMixin):
     
     
     user_id=db.Column(db.Integer,db.ForeignKey('users.id', ondelete="CASCADE"),nullable=False)
-    user=db.relationship("users",backref="reservation(travels)")
+    user=db.relationship("users",backref="reservation_travels")
     
     price_net=db.Column(db.Integer)
     
@@ -133,7 +133,7 @@ class travel_booking(db.Model,SerializerMixin):
     __tablename__ = "travel_bookings"
     
     id =db.Column(db.Integer,primary_key=True)
-    travelling_reservation_id = db.Column(db.Integer, db.ForeignKey("reservation(travels).id"))
+    travelling_reservation_id = db.Column(db.Integer, db.ForeignKey("reservation_travels.id"))
     travelling_service_id = db.Column(db.String(12), db.ForeignKey("travelling_services.id"))
     
     travelling_reservation=db.relationship("travelling_reservation_id",backref="travel_bookings")
@@ -146,7 +146,7 @@ class Accomodation_booking(db.Model,SerializerMixin):
     
     id=db.Column(db.Integer,primary_key=True)
     
-    accomodation_reservation=db.Column(db.Integer,db.ForeignKey("reservation(accomodation).id"))
+    accomodation_reservation=db.Column(db.Integer,db.ForeignKey("reservation_accomodation.id"))
     accomodation_service_id =db.Column(db.Integer,db.ForeignKey("accomodation_services.id"))
     
     accomodation_service=db.relationship("accomodation_services" ,backref="accomodation_bookings")

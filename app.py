@@ -1,17 +1,18 @@
-
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
+from models import db
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'  # Change this to your database URI
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'your_secret_key'  # Change this to your desired secret key
-db = SQLAlchemy(app)
+app.config['JWT_SECRET_KEY'] = 'nh62g6g78h8ehe9ihd75jhhi9736n3i8y8'  # Change this to your desired secret key
+db.init_app(app)
+migrate=Migrate(app,db)
 jwt = JWTManager(app)
-CORS(app)  # Enable CORS for all routes
+CORS(app)  
 
 # Define your models here
 
