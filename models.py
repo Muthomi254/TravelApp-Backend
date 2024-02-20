@@ -13,7 +13,7 @@ class User(db.Model,SerializerMixin):
     email=db.Column(db.String(100),nullable=False)
     phone_number=db.Column(db.String(50),nullable=False)
     password=db.Column(db.String(80),nullable=False)
-    role=db.Column(db.String(20))
+    role=db.Column(db.Enum('Admin', 'User'),default="User", nullable=False, server_default="User")
     
     
 class Travelling_service(db.Model,SerializerMixin):
