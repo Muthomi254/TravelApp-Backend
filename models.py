@@ -4,7 +4,7 @@ from sqlalchemy_serializer import SerializerMixin
 
 db=SQLAlchemy()
 
-class User(db.Model,SerializerMixin):
+class User(db.Model, SerializerMixin):
     
     __tablename__ = "Users"
     
@@ -16,7 +16,7 @@ class User(db.Model,SerializerMixin):
     role=db.Column(db.Enum('Admin', 'User'),default="User", nullable=False, server_default="User")
     
     
-class Travelling_service(db.Model,SerializerMixin):
+class Travelling_service(db.Model, SerializerMixin):
     
     __tablename__ = "travelling_services"
     
@@ -33,22 +33,20 @@ class Travelling_service(db.Model,SerializerMixin):
     
     company_id=db.Column(db.String(6),db.ForeignKey('companies.id'))
 
-    
-    
-class Accomodation_service(db.Model,SerializerMixin):
+class Accomodation_service(db.Model, SerializerMixin):
     
     __tablename__ = "accomodation_services"
     
     id = db.Column(db.Integer, primary_key=True)
-    name=db.Column(db.String(64), nullable=False)
-    location=db.Column(db.String(128), nullable=False)
-    available_rooms=db.Column(db.Integer,default=0) 
+    name = db.Column(db.String(64), nullable=False)
+    location = db.Column(db.String(128), nullable=False)
+    available_rooms = db.Column(db.Integer, default=0) 
     images = db.Column(db.String(255), nullable=False)
-    price_per_night=db.Column(db.Float, nullable=False)
-    average_rating=db.Column(db.Float, nullable=False)
+    price_per_night = db.Column(db.Float, nullable=False)
+    average_rating = db.Column(db.Float, nullable=False)
     
-    company_id=db.Column(db.String(6),db.ForeignKey('companies.id'))
-    
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'))
+
 class Company(db.Model, SerializerMixin):
     
     __tablename__ = 'companies'
@@ -58,13 +56,10 @@ class Company(db.Model, SerializerMixin):
     email = db.Column(db.String(120), unique=True)
     password = db.Column(db.String(128))
     description = db.Column(db.String)
-    category = db.Column(db.Enum('Transport', 'Accommodaion'))
+    category = db.Column(db.Enum('Transport', 'Accommodation'))
     
     accomodation_services = db.relationship('Accomodation_service', backref='company')
-    traveling_service = db.relationship('Travelling_service', backref="company")
-
-    
-
+    traveling_services = db.relationship('Travelling_service', backref='company')
     
 class Review_travel(db.Model, SerializerMixin):
     __tablename__ = "Reviews(travels)"
