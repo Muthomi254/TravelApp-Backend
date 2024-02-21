@@ -29,6 +29,9 @@ from Blueprints.user_bp import user_bp
 from Blueprints.reservation_bp import reservation_bp
 from Blueprints.traveling_service_bp import traveling_service_bp
 from Blueprints.accomodation_service_bp import accomodation_service_bp
+# from Blueprints.accommodation_review_bp import accomodation_review_bp
+# from Blueprints.travel_review_bp import travel_review_bp
+
 
 
 
@@ -41,6 +44,8 @@ app.register_blueprint(user_bp)
 app.register_blueprint(reservation_bp)
 app.register_blueprint(traveling_service_bp)
 app.register_blueprint(accomodation_service_bp)
+# app.register_blueprint(accomodation_review_bp)
+# app.register_blueprint(travel_review_bp)
 
 
 

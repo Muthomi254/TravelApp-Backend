@@ -95,6 +95,8 @@ def update_travel_service(service_id):
     service.description = data.get('description', service.description)
     service.depurture_city = data.get('depurture_city', service.depurture_city)
     service.arrival_city = data.get('arrival_city', service.arrival_city)
+    service.registration_number = data.get('registration_number', service.registration_number)
+    
     
     # Commit the changes to the database
     db.session.commit()
