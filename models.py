@@ -58,7 +58,7 @@ class Company(db.Model, SerializerMixin):
     email = db.Column(db.String(120), unique=True)
     password = db.Column(db.String(128))
     description = db.Column(db.String)
-    category = db.Column(db.Enum('Transport', 'Accommodaion'))
+    category = db.Column(db.Enum('Transport', 'Accommodation'))
     
     accomodation_services = db.relationship('Accomodation_service', backref='company')
     traveling_service = db.relationship('Travelling_service', backref="company")
