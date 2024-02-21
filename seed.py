@@ -169,6 +169,7 @@ from flask_sqlalchemy import SQLAlchemy
 from models import db, User, Travelling_service, Accomodation_service, Company, Review_travel, Review_accomodation, Reservation_accomodation, Reservation_travel, travel_booking, Accomodation_booking
 from datetime import datetime
 import random
+from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
@@ -184,6 +185,8 @@ app.app_context().push()
 
 from faker import Faker
 fake = Faker()
+de = (User,Travelling_service,Accomodation_booking,Company,Review_travel,Reservation_travel,Reservation_accomodation,travel_booking)
+db.session.delete(de)  # Clear all users
 
 def create_users():
     try:
@@ -192,7 +195,7 @@ def create_users():
                 name=fake.name(),
                 email=fake.email(),
                 phone_number=fake.phone_number(),
-                password=fake.password(),
+                password=generate_password_hash(fake.password()),
                 role=random.choice(['Admin', 'User'])
             )
             db.session.add(user)
