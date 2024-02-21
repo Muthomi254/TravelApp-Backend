@@ -48,7 +48,9 @@ def get_travel_service(service_id):
         "registration_number": service.registration_number,
         "company_id": service.company_id
     }
-    return jsonify(serialized_service)    
+    return jsonify(serialized_service) 
+
+  
 
 
 # Route to create a new travel service
@@ -89,6 +91,8 @@ def update_travel_service(service_id):
     service.depurture_time = depurture_time
     service.arrival_time = arrival_time
     service.price = data.get('price', service.price)
+    service.seats = data.get('seats', service.seats)
+    service.description = data.get('description', service.description)
     service.depurture_city = data.get('depurture_city', service.depurture_city)
     service.arrival_city = data.get('arrival_city', service.arrival_city)
     
@@ -114,12 +118,14 @@ def update_travel_service(service_id):
     return jsonify(serialized_service)
 
 # Route to delete an existing travel service
+
 # Delete needs reviews to be created so as to function
-@traveling_service_bp.route('/travel/<int:service_id>', methods=['DELETE'])
-def delete_travel_service(service_id):
-    service = Travelling_service.query.get_or_404(service_id)
-    db.session.delete(service)
-    db.session.commit()
-    return jsonify({'message': 'Travel service deleted successfully'}), 200
+
+# @traveling_service_bp.route('/travel/<int:service_id>', methods=['DELETE'])
+# def delete_travel_service(service_id):
+#     service = Travelling_service.query.get_or_404(service_id)
+#     db.session.delete(service)
+#     db.session.commit()
+#     return jsonify({'message': 'Travel service deleted successfully'}), 200
 
 
