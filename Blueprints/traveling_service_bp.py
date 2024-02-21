@@ -32,6 +32,24 @@ def get_travel_services():
     
     return jsonify(serialized_services)
 
+@traveling_service_bp.route('/travel/<int:service_id>', methods=['GET'])
+def get_travel_service(service_id):
+    service = Travelling_service.query.get_or_404(service_id)
+    serialized_service = {
+        "id": service.id,
+        "name": service.name,
+        "seats": service.seats,
+        "depurture_time": service.depurture_time.strftime('%Y-%m-%d %H:%M:%S'),
+        "arrival_time": service.arrival_time.strftime('%Y-%m-%d %H:%M:%S'),
+        "description": service.description,
+        "price": service.price,
+        "depurture_city": service.depurture_city,
+        "arrival_city": service.arrival_city,
+        "registration_number": service.registration_number,
+        "company_id": service.company_id
+    }
+    return jsonify(serialized_service)    
+
 
 # Route to create a new travel service
 @traveling_service_bp.route('/travel', methods=['POST'])
