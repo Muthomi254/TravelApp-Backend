@@ -62,30 +62,30 @@ def logout():
     unset_jwt_cookies(response)
     return response, 200
 
-# @admin_bp.route('/admin_suspend/<int:user_id>', methods=['PUT'])
-# @jwt_required
-# def admin_suspend_account(user_id):
-#     current_user = get_jwt_identity()
-#     admin=User.query._filter_by(id=current_user['id']).first()
-#     if  admin :
-#         if "Role" in current_user and current_user["Role"]=="Admin":
-#             # Checking If The Current user is Admin or not
-#             user=User.query.filter_by(id=user_id).first()
-#             if user:
-#                 user.suspended=True
-#                 db.session.commit()
+@admin_bp.route('/admin_suspend/<int:user_id>', methods=['PUT'])
+@jwt_required
+def admin_suspend_account(user_id):
+    current_user = get_jwt_identity()
+    admin=User.query._filter_by(id=current_user['id']).first()
+    if  admin :
+        if "Role" in current_user and current_user["Role"]=="Admin":
+            # Checking If The Current user is Admin or not
+            user=User.query.filter_by(id=user_id).first()
+            if user:
+                user.suspended=True
+                db.session.commit()
 
-# # remove suspension
+# remove suspension
 
-# @admin_bp.route('/admin_remove_suspention/<int:user_id>', methods=['PUT'])
-# @jwt_required
-# def admin_remove_suspend_account(user_id):
-#     current_user = get_jwt_identity()
-#     admin=User.query._filter_by(id=current_user['id']).first()
-#     if  admin :
-#         if "Role" in current_user and current_user["Role"]=="Admin":
-#             # Checking If The Current user is Admin or not
-#             user=User.query.filter_by(id=user_id).first()
-#             if user:
-#                 user.suspended=False
-#                 db.session.commit()
+@admin_bp.route('/admin_remove_suspention/<int:user_id>', methods=['PUT'])
+@jwt_required
+def admin_remove_suspend_account(user_id):
+    current_user = get_jwt_identity()
+    admin=User.query._filter_by(id=current_user['id']).first()
+    if  admin :
+        if "Role" in current_user and current_user["Role"]=="Admin":
+            # Checking If The Current user is Admin or not
+            user=User.query.filter_by(id=user_id).first()
+            if user:
+                user.suspended=False
+                db.session.commit()
