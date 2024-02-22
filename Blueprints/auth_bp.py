@@ -3,7 +3,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from models import db, User
 
-auth_bp = Blueprint('auth_bp', _name_)
+auth_bp = Blueprint('auth_bp', __name__)
 
 # # routes
 # # add customer
