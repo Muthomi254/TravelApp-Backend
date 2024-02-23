@@ -1,6 +1,7 @@
 
 from flask import Blueprint, jsonify, request, abort
 from models import db, Travelling_service
+from flask_jwt_extended import jwt_required
 from datetime import datetime
 
 # Create a Blueprint for service routes
@@ -8,6 +9,7 @@ traveling_service_bp = Blueprint('traveling_service_bp', __name__)
 
 # Route to get all travel services
 @traveling_service_bp.route('/travel', methods=['GET'])
+@jwt_required()
 def get_travel_services():
     try:
         travel_services = Travelling_service.query.all()
@@ -33,6 +35,7 @@ def get_travel_services():
 
 # Route to get a single travel service by ID
 @traveling_service_bp.route('/travel/<int:service_id>', methods=['GET'])
+@jwt_required()
 def get_travel_service(service_id):
     try:
         service = Travelling_service.query.get_or_404(service_id)
@@ -55,6 +58,7 @@ def get_travel_service(service_id):
 
 # Route to create a new travel service
 @traveling_service_bp.route('/travel', methods=['POST'])
+@jwt_required()
 def create_travel_service():
     try:
         data = request.json
@@ -66,12 +70,27 @@ def create_travel_service():
         new_service = Travelling_service(**data)
         db.session.add(new_service)
         db.session.commit()
-        return jsonify({"success": True, "message": "Travel service created successfully", "data": new_service.to_dict()}), 201
+        # Manually create a dictionary representation of the new_service object
+        serialized_service = {
+            "id": new_service.id,
+            "name": new_service.name,
+            "seats": new_service.seats,
+            "depurture_time": new_service.depurture_time.strftime('%Y-%m-%d %H:%M:%S'),
+            "arrival_time": new_service.arrival_time.strftime('%Y-%m-%d %H:%M:%S'),
+            "description": new_service.description,
+            "price": new_service.price,
+            "depurture_city": new_service.depurture_city,
+            "arrival_city": new_service.arrival_city,
+            "registration_number": new_service.registration_number,
+            "company_id": new_service.company_id
+        }
+        return jsonify({"success": True, "message": "Travel service created successfully", "data": serialized_service}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
 # Route to update an existing travel service
 @traveling_service_bp.route('/travel/<int:service_id>', methods=['PUT', 'PATCH'])
+@jwt_required()
 def update_travel_service(service_id):
     try:
         service = Travelling_service.query.get_or_404(service_id)
@@ -111,6 +130,7 @@ def update_travel_service(service_id):
 
 # Route to delete an existing travel service
 @traveling_service_bp.route('/travel/<int:service_id>', methods=['DELETE'])
+@jwt_required()
 def delete_travel_service(service_id):
     try:
         service = Travelling_service.query.get_or_404(service_id)

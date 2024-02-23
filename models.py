@@ -153,3 +153,21 @@ class Accomodation_booking(db.Model, SerializerMixin):
     accomodation_service = db.relationship("Accomodation_service", backref="accomodation_bookings")
     accomodation_reservation = db.relationship("Reservation_accomodation", backref="accomodation_bookings")
 
+class RevokedToken(db.Model):
+    __tablename__ = 'revoked_tokens'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(120), unique=True, nullable=False)  # Add unique constraint
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'))
+    
+    user = db.relationship('User', backref='revoked_tokens')
+    company = db.relationship('Company', backref='revoked_tokens')
+
+    @staticmethod
+    def is_jti_blacklisted(jwt_header, jwt_data):
+        jti = jwt_data['jti']
+        query = RevokedToken.query.filter_by(jti=jti).first()
+        return bool(query)
+
+
