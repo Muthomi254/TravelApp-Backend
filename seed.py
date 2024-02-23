@@ -19,8 +19,7 @@ app.app_context().push()
 
 from faker import Faker
 fake = Faker()
-de = (User,Travelling_service,Accomodation_booking,Company,Review_travel,Reservation_travel,Reservation_accomodation,travel_booking)
-db.session.delete(de)  # Clear all users
+
 
 def create_users():
     try:

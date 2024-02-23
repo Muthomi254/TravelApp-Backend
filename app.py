@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from models import db
+from models import db, User, Travelling_service, Accomodation_service, Company, Review_travel, Review_accomodation, Reservation_accomodation, Reservation_travel, travel_booking, Accomodation_booking
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
@@ -29,8 +29,9 @@ from Blueprints.user_bp import user_bp
 from Blueprints.reservation_bp import reservation_bp
 from Blueprints.traveling_service_bp import traveling_service_bp
 from Blueprints.accomodation_service_bp import accomodation_service_bp
-# from Blueprints.accommodation_review_bp import accomodation_review_bp
-# from Blueprints.travel_review_bp import travel_review_bp
+from Blueprints.accomodation_review_bp import accomodation_review_bp
+from Blueprints.travel_review_bp import travel_review_bp
+from Blueprints.company_auth_bp import company_auth_bp
 
 
 
@@ -44,8 +45,10 @@ app.register_blueprint(user_bp)
 app.register_blueprint(reservation_bp)
 app.register_blueprint(traveling_service_bp)
 app.register_blueprint(accomodation_service_bp)
-# app.register_blueprint(accomodation_review_bp)
-# app.register_blueprint(travel_review_bp)
+app.register_blueprint(accomodation_review_bp)
+app.register_blueprint(travel_review_bp)
+app.register_blueprint(company_auth_bp, url_prefix='/company_auth') #add this before link to differentiate it from auth_bp 
+
 
 
 
