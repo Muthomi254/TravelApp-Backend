@@ -6,7 +6,7 @@ reservation_bp = Blueprint("reservation", __name__)
 
 @reservation_bp.route('/reservations/accomodation', methods=['GET'])
 def get_accomodation_reservations():
-    reservations = Reservation_travel.query.all()
+    reservations = Reservation_accomodation.query.all()
 
     reservation_list = []
 
@@ -17,7 +17,7 @@ def get_accomodation_reservations():
             "checkin": str(reservation.checkin),  
             "checkout": str(reservation.checkout), 
             "days_in_room": reservation.days_in_room,
-            "price_net": float(reservation.price_net),
+            "price_net": (reservation.price_net),
             "user_id": reservation.user.id
         }
         reservation_list.append(reservation_dict)
@@ -33,7 +33,7 @@ def get_accomodation_reservation_by_id(reservation_id):
             "checkin": (reservation.checkin), 
             "checkout": (reservation.checkout),
             "days_in_room": reservation.days_in_room,
-            "price_net": float(reservation.price_net),
+            "price_net": (reservation.price_net),
             "user_id": reservation.user.id,
             "rooms":reservation.rooms,
             "people_included": reservation.people_included
@@ -65,7 +65,7 @@ def create_accomodation_reservation():
         return jsonify({"error":"User does not exist"}), 404
     else:
         db.session.add(new_reservation)
-        db.session()
+        db.session.commit()
         return(jsonify({"message":"Reservation created successfully"}), 201)
     
             
@@ -74,28 +74,44 @@ def create_accomodation_reservation():
 def update_accomodation_reservation(reservation_id):
     reservation = Reservation_accomodation.query.get_or_404(reservation_id)
     data = request.get_json()
-    if  'checkin' in data:
-        checkin=data['checkin']
-        checkin=datetime.strptime(checkin, '%Y-%m-%d')
-        reservation.checkin=checkin
-    elif "checkout" in data:
-        checkout=data['checkout']
-        checkout=datetime.strptime(checkout,'%Y-%m-%d')
-        reservation.checkout=checkout
-    elif  "people_included" in data:
-        people_included=data['people_included']
-        reservation.people_included=people_included
+    if reservation:
+        if data:
+            if 'checkin' in data:
+                checkin_data = data['checkin']
+                checkin = datetime.strptime(checkin_data, '%Y-%m-%d')
+                reservation.checkin = checkin
+            elif 'checkout' in data:
+                checkout_data = data['checkout']
+                checkout = datetime.strptime(checkout_data, '%Y-%m-%d')
+                reservation.checkout = checkout
+            elif 'people_included' in data:
+                people_included = data['people_included']
+                reservation.people_included = people_included
+            else:
+                return jsonify({"error": "Missing field"}), 400
+
+            # Ensure both checkin and checkout are of type datetime
+            if hasattr(reservation.checkin, 'date') and hasattr(reservation.checkout, 'date'):
+                # Convert datetime to date
+                reservation.checkin = reservation.checkin.date()
+                reservation.checkout = reservation.checkout.date()
+
+                days_in_room = abs((reservation.checkout - reservation.checkin).days) + 1
+                reservation.days_in_room = days_in_room
+                price_net = data['price_net']
+                reservation.price_net = price_net
+            try:
+                db.session.commit()
+                return jsonify({"message": "reservation updated successfully"})
+            except Exception as e:
+                print(f"Error updating reservation: {e}")
+                db.session.rollback()  # Rollback changes to avoid inconsistent state
+                return jsonify({"error": "Failed to update reservation"}), 500
+            # Delete a specific reservation by its id (for accommodations)
+        else:
+            return jsonify( {'error': 'No data provided'} ), 400
     else:
-        return jsonify( {"error": "Missing field"} ), 400
-    #calculate net price and total cost from other fields
-    if "checkin" in data or "checkout" in data:
-        days_in_room=abs((checkout - checkin).days)+1
-        reservation.days_in_room=days_in_room
-        price_net=data['price_net']
-        reservation.price_net=price_net      
-    
-    db.session.commit()
-    return jsonify({"message:reservation updated sucsessfuly"})
+        return jsonify( { 'error': 'The specified reservation does not exist.'} ) , 404
 
 @reservation_bp.route('/reservations/accomodation/<int:reservation_id>', methods=['DELETE'])
 def delete_accomodation_reservation(reservation_id):
@@ -110,10 +126,10 @@ def delete_accomodation_reservation(reservation_id):
 # Similar routes for travels reservations
 
 
-@reservation_bp.route('/reservations/travel', methods=['GET'])
-def get_accomodation_travel():
-    reservations = Reservation_travel.query.all()
-    return jsonify([reservation.to_dict() for reservation in reservations])
+# @reservation_bp.route('/reservations/travel', methods=['GET'])
+# def get_accomodation_travel():
+#     reservations = Reservation_travel.query.all()
+#     return jsonify([reservation.to_dict() for reservation in reservations])
 
 
 @reservation_bp.route('/reservations/travel/<int:reservation_id>', methods=['DELETE'])
@@ -123,7 +139,7 @@ def delete_travel_reservation(reservation_id):
     db.session.commit()
     return jsonify({"message": "Reservation deleted successfully"})
 
-@reservation_bp.route('/reservations/travels', methods=['GET'])
+@reservation_bp.route('/reservations/travel', methods=['GET'])
 def get_travel_reservations():
     reservations = Reservation_travel.query.all()
 
@@ -140,16 +156,30 @@ def get_travel_reservations():
 
     return jsonify(reservation_list)
 
+@reservation_bp.route('/reservation/travel/<int:user_id>', methods=['GET'])
+def get_travel_reservation_by_id(user_id):
+    reservation= Reservation_travel.query.filter_by(user_id=user_id).first()
+    if reservation:
+        return jsonify({
+            "id": reservation.id,
+            "user_email": reservation.user.email,
+            "date": reservation.date,
+            "user_id": reservation.user.id
+        })
+
 @reservation_bp.route("/reservation/travel", methods=["POST"])
 def  add_travel_reservation():
     data=request.get_json()
     user_id=data['user_id']
     people_included=data['people_included']
     date=datetime.strptime(data['date'],'%Y-%m-%d')
-    
-    new_reservation=Reservation_travel(user_id,people_included,date)
-    db.session.add(new_reservation)
-    db.session.commit()
+    try:
+        new_reservation=Reservation_travel(user_id=user_id,people_included=people_included,date=date)
+        db.session.add(new_reservation)
+        db.session.commit()
+        return jsonify({"message":"The travel reservation was added successfuly"}),201
+    except Exception as e:
+        return {"error":"There was an error with your request."},500
     
 @reservation_bp.route("/reservation/travel/<int:reservation_id>",methods=['PUT'])
 def  update_travel_reservation(reservation_id):
@@ -165,5 +195,6 @@ def  update_travel_reservation(reservation_id):
     else:
         return jsonify({"message":"No reservation found with given id"}),404
     db.session.commit()
+    return jsonify({"message":"The travel reservation has been updated"}),200  
             
     

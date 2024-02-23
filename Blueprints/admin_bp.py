@@ -57,35 +57,47 @@ def  admin_login():
         
 @admin_bp.route("/admin_logout", methods=["POST"])
 @jwt_required()
-def logout():
+def admin_logout():
     response = jsonify({"msg": "Logout successful"})
     unset_jwt_cookies(response)
     return response, 200
 
 @admin_bp.route('/admin_suspend/<int:user_id>', methods=['PUT'])
-@jwt_required
+@jwt_required()
 def admin_suspend_account(user_id):
     current_user = get_jwt_identity()
-    admin=User.query._filter_by(id=current_user['id']).first()
+    # return current_user
+    admin=User.query.filter_by(id=current_user['id']).first()
     if  admin :
-        if "Role" in current_user and current_user["Role"]=="Admin":
+        if "role" in current_user and current_user["role"]=="Admin":
             # Checking If The Current user is Admin or not
             user=User.query.filter_by(id=user_id).first()
             if user:
-                user.suspended=True
+                user.is_suspended=True
                 db.session.commit()
+            else:
+                return jsonify( {"error":"The specified account does not exist!"} ),404
+            return jsonify({'Message':f'The account of {user.name} has been suspended.'}),200
+        else:
+             return jsonify({"error": "Unauthorized access! You are not an admin."}),401   
+    
 
 # remove suspension
 
 @admin_bp.route('/admin_remove_suspention/<int:user_id>', methods=['PUT'])
-@jwt_required
+@jwt_required()
 def admin_remove_suspend_account(user_id):
     current_user = get_jwt_identity()
-    admin=User.query._filter_by(id=current_user['id']).first()
+    admin=User.query.filter_by(id=current_user['id']).first()
     if  admin :
-        if "Role" in current_user and current_user["Role"]=="Admin":
+        if "role" in current_user and current_user["role"]=="Admin":
             # Checking If The Current user is Admin or not
             user=User.query.filter_by(id=user_id).first()
             if user:
-                user.suspended=False
+                user.is_suspended=False
                 db.session.commit()
+            else:
+                return jsonify( {"error":"The specified account does not exist!"} ),404
+            return jsonify({'Message':f'The account of {user.name} has been removed from suspension.'}),200
+        else:
+             return jsonify({"error": "Unauthorized access! You are not an admin."}),401   
