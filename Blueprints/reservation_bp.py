@@ -118,7 +118,7 @@ def get_accomodation_travel():
 
 @reservation_bp.route('/reservations/travel/<int:reservation_id>', methods=['DELETE'])
 def delete_travel_reservation(reservation_id):
-    reservation = Reservation_accomodation.query.get_or_404(reservation_id)
+    reservation = Reservation_travel.query.get_or_404(reservation_id)
     db.session.delete(reservation)
     db.session.commit()
     return jsonify({"message": "Reservation deleted successfully"})

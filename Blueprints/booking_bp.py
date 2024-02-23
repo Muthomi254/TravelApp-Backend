@@ -1,7 +1,6 @@
 from flask import Blueprint,jsonify,request
-from models import Travel_booking,Accomodation_booking,User
+from models import Travel_booking,Accomodation_booking,User,db
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app import db
 
 
 booking_bp=Blueprint("booking",__name__)
