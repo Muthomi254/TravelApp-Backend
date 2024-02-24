@@ -97,9 +97,11 @@ class Review_accomodation(db.Model, SerializerMixin):
 
 
     
-class Reservation_accomodation(db.Model, SerializerMixin):
-    
-    __tablename__ ="reservation(accomodation)"
+
+class Reservation_travel(db.Model, SerializerMixin):
+
+    __tablename__ ="reservation(travels)"
+
     
     id = db.Column(db.Integer, primary_key=True)
     people_included = db.Column(db.SmallInteger, nullable=False)
@@ -109,9 +111,11 @@ class Reservation_accomodation(db.Model, SerializerMixin):
     user = db.relationship('User', backref="reservation_accomodation")
 
     
-class Reservation_travel(db.Model, SerializerMixin):
+class Reservation_accomodation(db.Model, SerializerMixin):
     
-    __tablename__ ="reservation(travels)"
+
+    __tablename__ ="reservation(accomodation)"
+
     
     id = db.Column(db.Integer, primary_key=True)
     people_included = db.Column(db.SmallInteger, nullable=False)

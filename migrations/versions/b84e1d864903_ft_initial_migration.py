@@ -1,8 +1,11 @@
-"""Initial commit
+"""(ft):
+initial migration
 
-Revision ID: 5ba9238aba77
+
+
+Revision ID: b84e1d864903
 Revises: 
-Create Date: 2024-02-23 16:38:14.423668
+Create Date: 2024-02-23 22:20:18.473266
 
 """
 from alembic import op
@@ -10,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5ba9238aba77'
+revision = 'b84e1d864903'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -56,14 +59,6 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('people_included', sa.SmallInteger(), nullable=False),
     sa.Column('date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('reservation(travels)',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('people_included', sa.SmallInteger(), nullable=False),
-    sa.Column('date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.Column('checkin', sa.Date(), nullable=True),
     sa.Column('checkout', sa.Date(), nullable=True),
     sa.Column('days_in_room', sa.Integer(), nullable=True),
@@ -72,6 +67,24 @@ def upgrade():
     sa.Column('price_net', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['Users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('reservation(travels)',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('people_included', sa.SmallInteger(), nullable=False),
+    sa.Column('date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('revoked_tokens',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('jti', sa.String(length=120), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('company_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('jti')
     )
     op.create_table('travelling_services',
     sa.Column('ts_id', sa.Integer(), nullable=False),
@@ -141,6 +154,7 @@ def downgrade():
     op.drop_table('Reviews(travels)')
     op.drop_table('Reviews(accomodation)')
     op.drop_table('travelling_services')
+    op.drop_table('revoked_tokens')
     op.drop_table('reservation(travels)')
     op.drop_table('reservation(accomodation)')
     op.drop_table('accomodation_services')

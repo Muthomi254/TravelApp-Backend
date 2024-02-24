@@ -46,35 +46,35 @@ def create_user():
 
 
 
-# Logout user
-# @auth_bp.route("/logout", methods=["POST"])
-# @jwt_required()
-# def logout():
-#     response = jsonify({"msg": "Logout successful"})
-#     unset_jwt_cookies(response)
-#     return response, 200
-
-
+Logout user
 @auth_bp.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
-    try:
-        # Get the token's jti (JWT ID) from the decoded token
-        jti = get_jwt_identity()['jti']
-        
-        # Add the token's jti to the revoked token list
-        revoked_token = RevokedToken(jti=jti)
-        db.session.add(revoked_token)
-        db.session.commit()
+    response = jsonify({"msg": "Logout successful"})
+    unset_jwt_cookies(response)
+    return response, 200
 
-        # Clear the JWT cookies from the response
-        response = jsonify({"msg": "Logout successful"})
-        unset_jwt_cookies(response)
+
+# @auth_bp.route("/logout", methods=["POST"])
+# @jwt_required()
+# def logout():
+#     try:
+#         # Get the token's jti (JWT ID) from the decoded token
+#         jti = get_jwt_identity()['jti']
         
-        return response, 200
-    except Exception as e:
-        # Handle any errors
-        return jsonify({"error": str(e)}), 500
+#         # Add the token's jti to the revoked token list
+#         revoked_token = RevokedToken(jti=jti)
+#         db.session.add(revoked_token)
+#         db.session.commit()
+
+#         # Clear the JWT cookies from the response
+#         response = jsonify({"msg": "Logout successful"})
+#         unset_jwt_cookies(response)
+        
+#         return response, 200
+#     except Exception as e:
+#         # Handle any errors
+#         return jsonify({"error": str(e)}), 500
 
 @auth_bp.route("/profile/<int:user_id>", methods=["GET"])
 @jwt_required()
