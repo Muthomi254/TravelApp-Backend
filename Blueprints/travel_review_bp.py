@@ -1,10 +1,13 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request, abort
 from models import db, Review_travel
+from flask_jwt_extended import jwt_required
 from datetime import datetime
 # Define Blueprint
 travel_review_bp = Blueprint("travel_review_bp", __name__)
 
 @travel_review_bp.route('/reviews', methods=['POST'])
+@jwt_required()
+
 def create_review():
     data = request.json
     if not data or not all(key in data for key in ('rating', 'review', 'user_id', 'travel_id')):
@@ -27,6 +30,8 @@ def create_review():
         db.session.close()
 
 @travel_review_bp.route('/reviews', methods=['GET'])
+@jwt_required()
+
 def get_reviews():
     reviews = Review_travel.query.all()
     serialized_reviews = []
@@ -64,6 +69,8 @@ def get_review(review_id):
 
 
 @travel_review_bp.route('/reviews/<int:review_id>', methods=['PATCH'])
+@jwt_required()
+
 def update_review(review_id):
     review = Review_travel.query.get(review_id)
     if not review:
@@ -91,6 +98,8 @@ def update_review(review_id):
 
 
 @travel_review_bp.route('/reviews/<int:review_id>', methods=['DELETE'])
+@jwt_required()
+
 def delete_review(review_id):
     review = Review_travel.query.get(review_id)
     if not review:

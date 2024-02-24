@@ -1,11 +1,11 @@
 """(ft):
-initial migration
+adding user id column to travel and accomodation booking
 
 
 
-Revision ID: b84e1d864903
+Revision ID: a65b626d4a91
 Revises: 
-Create Date: 2024-02-23 22:20:18.473266
+Create Date: 2024-02-24 18:29:13.142815
 
 """
 from alembic import op
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b84e1d864903'
+revision = 'a65b626d4a91'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,6 +28,7 @@ def upgrade():
     sa.Column('phone_number', sa.String(length=50), nullable=False),
     sa.Column('password', sa.String(length=80), nullable=False),
     sa.Column('role', sa.Enum('Admin', 'User'), server_default='User', nullable=False),
+    sa.Column('is_suspended', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('companies',
@@ -53,27 +54,6 @@ def upgrade():
     sa.Column('average_rating', sa.Float(), nullable=False),
     sa.Column('company_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('reservation(accomodation)',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('people_included', sa.SmallInteger(), nullable=False),
-    sa.Column('date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
-    sa.Column('checkin', sa.Date(), nullable=True),
-    sa.Column('checkout', sa.Date(), nullable=True),
-    sa.Column('days_in_room', sa.Integer(), nullable=True),
-    sa.Column('rooms', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('price_net', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('reservation(travels)',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('people_included', sa.SmallInteger(), nullable=False),
-    sa.Column('date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('revoked_tokens',
@@ -128,6 +108,34 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['Users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('reservation(accomodation)',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('people_included', sa.SmallInteger(), nullable=False),
+    sa.Column('date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('checkin', sa.Date(), nullable=True),
+    sa.Column('checkout', sa.Date(), nullable=True),
+    sa.Column('days_in_room', sa.Integer(), nullable=True),
+    sa.Column('rooms', sa.Integer(), nullable=True),
+    sa.Column('service_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('price_net', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['service_id'], ['accomodation_services.id'], ),
+    sa.ForeignKeyConstraint(['service_id'], ['accomodation_services.id'], name='fk_reservation_accomodation_service_id'),
+    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('reservation(travel)',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('people_included', sa.SmallInteger(), nullable=False),
+    sa.Column('date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('price_net', sa.Integer(), nullable=True),
+    sa.Column('service_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['service_id'], ['travelling_services.ts_id'], ),
+    sa.ForeignKeyConstraint(['service_id'], ['travelling_services.ts_id'], name='fk_reservation_travel_service_id'),
+    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('accomodation_bookings',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('accomodation_reservation_id', sa.Integer(), nullable=True),
@@ -140,7 +148,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('travelling_reservation_id', sa.Integer(), nullable=True),
     sa.Column('travelling_service_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['travelling_reservation_id'], ['reservation(travels).id'], ),
+    sa.ForeignKeyConstraint(['travelling_reservation_id'], ['reservation(travel).id'], ),
     sa.ForeignKeyConstraint(['travelling_service_id'], ['travelling_services.ts_id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -151,12 +159,12 @@ def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('travel_bookings')
     op.drop_table('accomodation_bookings')
+    op.drop_table('reservation(travel)')
+    op.drop_table('reservation(accomodation)')
     op.drop_table('Reviews(travels)')
     op.drop_table('Reviews(accomodation)')
     op.drop_table('travelling_services')
     op.drop_table('revoked_tokens')
-    op.drop_table('reservation(travels)')
-    op.drop_table('reservation(accomodation)')
     op.drop_table('accomodation_services')
     with op.batch_alter_table('companies', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_companies_name'))

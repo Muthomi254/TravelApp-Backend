@@ -1,11 +1,15 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request, abort
 from models import db, Review_accomodation
+from flask_jwt_extended import jwt_required
+
 
 accomodation_review_bp = Blueprint('accomodation_review_bp', __name__)
 
 
 
 @accomodation_review_bp.route('/accomodation-reviews', methods=['POST'])
+@jwt_required()
+
 def create_review():
     # Check if the request Content-Type is 'application/json'
     if request.headers.get('Content-Type') != 'application/json':
@@ -33,6 +37,8 @@ def create_review():
 
 
 @accomodation_review_bp.route('/accomodation-reviews', methods=['GET'])
+@jwt_required()
+
 def get_reviews():
     reviews = Review_accomodation.query.all()
     serialized_reviews = []
@@ -54,6 +60,8 @@ def get_reviews():
 
 
 @accomodation_review_bp.route('/accomodation-reviews/<int:review_id>', methods=['GET'])
+@jwt_required()
+
 def get_review(review_id):
     review = Review_accomodation.query.get(review_id)
     if not review:
@@ -73,6 +81,8 @@ def get_review(review_id):
 
 
 @accomodation_review_bp.route('/accomodation-reviews/<int:review_id>', methods=['PATCH'])
+@jwt_required()
+
 def update_review(review_id):
     review = Review_accomodation.query.get(review_id)
     if not review:
@@ -102,6 +112,8 @@ def update_review(review_id):
         'review_count': review.review_count
     }})
 @accomodation_review_bp.route('/accomodation-reviews/<int:review_id>', methods=['DELETE'])
+@jwt_required()
+
 def delete_review(review_id):
     review = Review_accomodation.query.get(review_id)
     if not review:
