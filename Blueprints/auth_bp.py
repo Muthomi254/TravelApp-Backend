@@ -15,12 +15,15 @@ def login():
     user = User.query.filter_by(email=email).first()
 
     if user:
-        stored_password = user.password
-        if check_password_hash(stored_password, password):
-            access_token = create_access_token(identity=user.id)
-            return jsonify({"msg":"succesfully loged in" ,"access_token":access_token}), 200
+        if user.is_suspended == True:
+            return jsonify({"message": "User is suspended"}), 401
         else:
-            return jsonify({"error": "Incorrect Password!"}), 401
+            stored_password = user.password
+            if check_password_hash(stored_password, password):
+                access_token = create_access_token(identity=user.id)
+                return jsonify({"msg":"succesfully loged in" ,"access_token":access_token}), 200
+            else:
+                return jsonify({"error": "Incorrect Password!"}), 401
     else:
         return jsonify({"error": "User not found!"}), 404
 # create user
