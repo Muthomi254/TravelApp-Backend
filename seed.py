@@ -130,24 +130,36 @@ def create_reviews():
 def create_reservations():
     try:
         for _ in range(10):
-            reservation_accomodation = Reservation_accomodation(
-                people_included=random.randint(1, 5),
-                date=datetime.now(),
-                user_id=random.randint(1, 10)
-            )
-            db.session.add(reservation_accomodation)
+            # Create a random user
+            user = User.query.get(random.randint(1, 10))
 
-            reservation_travel = Reservation_travel(
+            # Create a random Accomodation_service and Travelling_service
+            accomodation_service = Accomodation_service.query.get(random.randint(1, 10))
+            travelling_service = Travelling_service.query.get(random.randint(1, 10))
+
+            # Create Reservation_accomodation associated with Accomodation_service
+            reservation_accomodation = Reservation_accomodation(
                 people_included=random.randint(1, 5),
                 date=datetime.now(),
                 checkin=fake.date_time_this_year(),
                 checkout=fake.date_time_this_year(),
                 days_in_room=random.randint(1, 10),
                 rooms=random.randint(1, 3),
-                user_id=random.randint(1, 10),
+                user=user,  # Set user directly
+                service_id=accomodation_service.id,
                 price_net=random.randint(100, 1000)
             )
+            db.session.add(reservation_accomodation)
+
+            # Create Reservation_travel associated with Travelling_service
+            reservation_travel = Reservation_travel(
+                people_included=random.randint(1, 5),
+                date=datetime.now(),
+                user=user,  # Set user directly
+                service_id=travelling_service.id
+            )
             db.session.add(reservation_travel)
+
         db.session.commit()
         print(".....................Reservations created successfully.................!")
     except Exception as e:
@@ -158,25 +170,28 @@ def create_bookings():
     try:
         for _ in range(10):
             # Create instances of related models first
-            reservation_travel = Reservation_travel.query.get(random.randint(1, 10))
-            travelling_service = Travelling_service.query.get(random.randint(1, 10))
-
-            # Then use these instances when creating the booking instance
-            booking_instance = Travel_booking(
-                travelling_reservation=reservation_travel,
-                travelling_service=travelling_service
-            )
-            db.session.add(booking_instance)
-
-            # Repeat the process for Accomodation_booking
             reservation_accomodation = Reservation_accomodation.query.get(random.randint(1, 10))
             accomodation_service = Accomodation_service.query.get(random.randint(1, 10))
 
+            # Create Accomodation_booking associated with Reservation_accomodation and Accomodation_service
             accomodation_booking = Accomodation_booking(
                 accomodation_reservation=reservation_accomodation,
-                accomodation_service=accomodation_service
+                accomodation_service=accomodation_service,
+                user_id=random.randint(1, 10)  # Add this line to set user_id
             )
             db.session.add(accomodation_booking)
+
+            # Repeat the process for Travel_booking
+            reservation_travel = Reservation_travel.query.get(random.randint(1, 10))
+            travelling_service = Travelling_service.query.get(random.randint(1, 10))
+
+            travel_booking = Travel_booking(
+                travelling_reservation=reservation_travel,
+                travelling_service=travelling_service,
+                user_id=random.randint(1, 10)  # Add this line to set user_id
+            )
+            db.session.add(travel_booking)
+
         db.session.commit()
         print("..............Bookings created successfully!............")
     except Exception as e:
