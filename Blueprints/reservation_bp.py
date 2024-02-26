@@ -9,11 +9,9 @@ reservation_bp = Blueprint('reservation_bp', __name__)
 # Travel Reservations Routes
 
 @reservation_bp.route('/reservations/travel', methods=['GET'])
-@jwt_required()
 def get_all_travel_reservations():
     try:
-        user_id = get_jwt_identity()
-        reservations = Reservation_travel.query.filter_by(user_id=user_id).all()
+        reservations = Reservation_travel.query.all()
         return jsonify([{
             'id': reservation.id,
             'people_included': reservation.people_included,
@@ -25,11 +23,9 @@ def get_all_travel_reservations():
         return jsonify({'error': str(e)}), 500
 
 @reservation_bp.route('/reservations/travel/<int:id>', methods=['GET'])
-@jwt_required()
 def get_travel_reservation(id):
     try:
-        user_id = get_jwt_identity()
-        reservation = Reservation_travel.query.filter_by(id=id, user_id=user_id).one()
+        reservation = Reservation_travel.query.filter_by(id=id).one()
         return jsonify({
             'id': reservation.id,
             'people_included': reservation.people_included,
@@ -46,7 +42,7 @@ def get_travel_reservation(id):
 @jwt_required()
 def create_travel_reservation():
     try:
-        data = request.json
+        data = request.get_json()
         people_included = data.get('people_included')
         service_id = data.get('service_id')  # Use get method to safely retrieve data
         
@@ -78,7 +74,7 @@ def create_travel_reservation():
 @jwt_required()
 def update_travel_reservation(id):
     try:
-        data = request.json
+        data = request.get_json()
         reservation = Reservation_travel.query.get(id)
         if not reservation:
             raise NoResultFound("Reservation not found")
@@ -139,8 +135,7 @@ def delete_travel_reservation(id):
 @jwt_required()
 def get_all_accommodation_reservations():
     try:
-        user_id = get_jwt_identity()
-        reservations = Reservation_accomodation.query.filter_by(user_id=user_id).all()
+        reservations = Reservation_accomodation.query.all()
         return jsonify([{
             'id': reservation.id,
             'people_included': reservation.people_included,
@@ -171,7 +166,7 @@ def get_accommodation_reservation(id):
 @jwt_required()
 def create_accommodation_reservation():
     try:
-        data = request.json
+        data = request.get_json()
         checkin_date = datetime.strptime(data['checkin'], '%Y-%m-%d').date()
         checkout_date = datetime.strptime(data['checkout'], '%Y-%m-%d').date()
         
@@ -216,7 +211,7 @@ def create_accommodation_reservation():
 @jwt_required()
 def update_accommodation_reservation(id):
     try:
-        data = request.json
+        data = request.get_json()
         reservation = Reservation_accomodation.query.get(id)
         if not reservation:
             raise NoResultFound("Reservation not found")

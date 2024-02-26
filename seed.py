@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from models import db, User, Travelling_service, Accomodation_service, Company, Review_travel, Review_accomodation, Reservation_accomodation, Reservation_travel, travel_booking, Accomodation_booking
+from models import db, User, Travelling_service, Accomodation_service, Company, Review_travel, Review_accomodation, Reservation_accomodation, Reservation_travel, Travel_booking, Accomodation_booking
 from datetime import datetime
 import random
 from werkzeug.security import generate_password_hash
@@ -162,7 +162,7 @@ def create_bookings():
             travelling_service = Travelling_service.query.get(random.randint(1, 10))
 
             # Then use these instances when creating the booking instance
-            booking_instance = travel_booking(
+            booking_instance = Travel_booking(
                 travelling_reservation=reservation_travel,
                 travelling_service=travelling_service
             )
