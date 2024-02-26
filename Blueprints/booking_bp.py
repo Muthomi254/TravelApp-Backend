@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Travel_booking, Accomodation_booking, Reservation_travel, Reservation_accomodation
+from models import db, Travel_booking, Accomodation_booking, Reservation_travel, Reservation_accomodation,Accomodation_service
 
 booking_bp = Blueprint('booking_bp', __name__)
 
@@ -12,11 +12,12 @@ def book_travel():
     try:
         current_user_id = get_jwt_identity()
         data = request.json
+        
         new_booking = Travel_booking(
             travelling_reservation_id=data['travelling_reservation_id'],
             travelling_service_id=data['travelling_service_id'],
-            user_id=current_user_id  # Associate the booking with the current user
-        )
+            user_id=current_user_id
+        )        
         db.session.add(new_booking)
         db.session.commit()
         return jsonify({'message': 'Travel booking created successfully'}), 201
@@ -29,14 +30,24 @@ def book_travel():
 def book_accommodation():
     try:
         current_user_id = get_jwt_identity()
-        data = request.json
-        new_booking = Accomodation_booking(
-            accomodation_reservation_id=data['accomodation_reservation_id'],
-            accomodation_service_id=data['accomodation_service_id'],
-            user_id=current_user_id  # Associate the booking with the current user
-        )
-        db.session.add(new_booking)
-        db.session.commit()
+        data = request.get_json()
+        reservation=Reservation_accomodation.query.filter_by(id=data["accomodation_reservation_id"]).first()
+        accomodation_service=Accomodation_service.query.filter_by(id=reservation.service_id).first()
+        if not reservation:
+            return jsonify({"error": "Invalid reservation id"}),400
+        else:
+            rooms_used=reservation.rooms
+            rooms_available=accomodation_service.available_rooms
+            new_rooms=min(rooms_used,rooms_available)
+            #update the number of available rooms
+            accomodation_service.available_rooms=new_rooms
+            new_booking = Accomodation_booking(
+                accomodation_reservation_id=data['accomodation_reservation_id'],
+                accomodation_service_id=data['accomodation_service_id'],
+                user_id=current_user_id  # Associate the booking with the current user
+            )
+            db.session.add(new_booking)
+            db.session.commit()
         return jsonify({'message': 'Accommodation booking created successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -46,7 +57,7 @@ def book_accommodation():
 @jwt_required()
 def update_travel_booking(id):
     try:
-        data = request.json
+        data = request.get_json()
         booking = Travel_booking.query.get_or_404(id)
         # Add authorization check here if necessary
         booking.travelling_reservation_id = data['travelling_reservation_id']
@@ -58,7 +69,6 @@ def update_travel_booking(id):
 
 
 @booking_bp.route('/bookings/travel/<int:user_id>', methods=['GET'])
-@jwt_required()
 def get_user_travel_bookings(user_id):
     try:
         travel_bookings = Travel_booking.query.filter_by(user_id=user_id).all()
@@ -68,7 +78,8 @@ def get_user_travel_bookings(user_id):
                 'id': booking.id,
                 'travelling_reservation_id': booking.travelling_reservation_id,
                 'travelling_service_id': booking.travelling_service_id,
-                # Add other attributes as needed
+                'user_email':booking.travelling_reservation.user.email,
+                'user_id':booking.travelling_reservation.user.id
             }
             serialized_bookings.append(serialized_booking)
         return jsonify(serialized_bookings), 200
@@ -91,13 +102,22 @@ def delete_travel_booking(id):
 # Accommodation booking
 @booking_bp.route('/bookings/accommodation/<int:id>', methods=['PATCH'])
 @jwt_required()
-def update_accommodation_booking(id):
+def update_accommodation_booking(id):    
     try:
-        data = request.json
-        booking = Accommodation_booking.query.get_or_404(id)
+        data = request.get_json()
+        reservation=Reservation_accomodation.query.filter_by(id=data["accommodation_reservation_id"]).first()
+        accomodation_service=Accomodation_service.query.filter_by(id=reservation.service_id).first()
+        booking = Accomodation_booking.query.get_or_404(id)
         # Add authorization check here if necessary
-        booking.accommodation_reservation_id = data['accommodation_reservation_id']
-        booking.accommodation_service_id = data['accommodation_service_id']
+        if not reservation:
+            return jsonify({"error": "Invalid reservation id"}),400
+        else:
+            booking.accommodation_reservation_id = data['accommodation_reservation_id']
+            booking.accommodation_service_id = data['accommodation_service_id']
+            rooms_used=reservation.rooms
+            rooms_available=accomodation_service.available_rooms
+            new_rooms=min(rooms_used,rooms_available)
+            accomodation_service.available_rooms=new_rooms
         db.session.commit()
         return jsonify({'message': 'Accommodation booking updated successfully'}), 200
     except Exception as e:
@@ -105,7 +125,6 @@ def update_accommodation_booking(id):
 
 
 @booking_bp.route('/bookings/accommodation/<int:user_id>', methods=['GET'])
-@jwt_required()
 def get_user_accommodation_bookings(user_id):
     try:
         accomodation_bookings = Accomodation_booking.query.filter_by(user_id=user_id).all()
@@ -115,7 +134,8 @@ def get_user_accommodation_bookings(user_id):
                 'id': booking.id,
                 'accomodation_reservation_id': booking.accomodation_reservation_id,
                 'accomodation_service_id': booking.accomodation_service_id,
-                # Add other attributes as needed
+                'user_email':booking.user.email,
+                'net_price':booking.accomodation_reservation.net_price,
             }
             serialized_bookings.append(serialized_booking)
         return jsonify(serialized_bookings), 200
@@ -124,10 +144,10 @@ def get_user_accommodation_bookings(user_id):
         
 
 @booking_bp.route('/bookings/accommodation/<int:id>', methods=['DELETE'])
-@jwt_required()
+# @jwt_required()
 def delete_accommodation_booking(id):
     try:
-        booking = Accommodation_booking.query.get_or_404(id)
+        booking = Accomodation_booking.query.get_or_404(id)
         # Add authorization check here if necessary
         db.session.delete(booking)
         db.session.commit()
