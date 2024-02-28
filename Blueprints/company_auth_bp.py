@@ -13,6 +13,17 @@ company_auth_bp = Blueprint('company_auth_bp', __name__)
 def register_company():
     try:
         data = request.json
+        # Check if a company with the provided email already exists
+        existing_email = Company.query.filter_by(email=data['email']).first()
+        if existing_email:
+            return jsonify({'error': 'Company with this email already exists'}), 400
+        
+        # Check if a company with the provided name already exists
+        existing_name = Company.query.filter_by(name=data['name']).first()
+        if existing_name:
+            return jsonify({'error': 'Company with this name already exists'}), 400
+        
+        # If the company does not exist, proceed with registration
         new_company = Company(
             name=data['name'],
             email=data['email'],
@@ -25,6 +36,7 @@ def register_company():
         return jsonify({'message': 'Company registered successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @company_auth_bp.route('/login', methods=['POST'])
 def login_company():
