@@ -11,7 +11,8 @@ reservation_bp = Blueprint('reservation_bp', __name__)
 @reservation_bp.route('/reservations/travel', methods=['GET'])
 def get_all_travel_reservations():
     try:
-        reservations = Reservation_travel.query.all()
+        user_id = get_jwt_identity()
+        reservations = Reservation_travel.query.filter_by(user_id=user_id).all()
         return jsonify([{
             'id': reservation.id,
             'people_included': reservation.people_included,
