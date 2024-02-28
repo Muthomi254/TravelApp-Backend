@@ -58,7 +58,13 @@ app.register_blueprint(travel_review_bp)
 app.register_blueprint(company_auth_bp, url_prefix='/company_auth') #add this before link to differentiate it from auth_bp 
 
 
-
+# Move after_request to the main app object
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True)
