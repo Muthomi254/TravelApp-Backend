@@ -6,7 +6,7 @@ from datetime import datetime
 travel_review_bp = Blueprint("travel_review_bp", __name__)
 
 @travel_review_bp.route('/reviews', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 
 def create_review():
     data = request.json
@@ -30,7 +30,7 @@ def create_review():
         db.session.close()
 
 @travel_review_bp.route('/reviews', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 
 def get_reviews():
     reviews = Review_travel.query.all()
@@ -69,7 +69,7 @@ def get_review(review_id):
 
 
 @travel_review_bp.route('/reviews/<int:review_id>', methods=['PATCH'])
-@jwt_required()
+# @jwt_required()
 
 def update_review(review_id):
     review = Review_travel.query.get(review_id)
@@ -98,7 +98,7 @@ def update_review(review_id):
 
 
 @travel_review_bp.route('/reviews/<int:review_id>', methods=['DELETE'])
-@jwt_required()
+# @jwt_required()
 
 def delete_review(review_id):
     review = Review_travel.query.get(review_id)

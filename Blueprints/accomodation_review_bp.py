@@ -37,7 +37,7 @@ def create_review():
 
 
 @accomodation_review_bp.route('/accomodation-reviews', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 
 def get_reviews():
     reviews = Review_accomodation.query.all()
@@ -60,7 +60,7 @@ def get_reviews():
 
 
 @accomodation_review_bp.route('/accomodation-reviews/<int:review_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 
 def get_review(review_id):
     review = Review_accomodation.query.get(review_id)
@@ -81,7 +81,7 @@ def get_review(review_id):
 
 
 @accomodation_review_bp.route('/accomodation-reviews/<int:review_id>', methods=['PATCH'])
-@jwt_required()
+# @jwt_required()
 
 def update_review(review_id):
     review = Review_accomodation.query.get(review_id)
@@ -112,7 +112,7 @@ def update_review(review_id):
         'review_count': review.review_count
     }})
 @accomodation_review_bp.route('/accomodation-reviews/<int:review_id>', methods=['DELETE'])
-@jwt_required()
+# @jwt_required()
 
 def delete_review(review_id):
     review = Review_accomodation.query.get(review_id)

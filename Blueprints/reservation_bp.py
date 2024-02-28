@@ -39,7 +39,7 @@ def get_travel_reservation(id):
         return jsonify({'error': str(e)}), 500
 
 @reservation_bp.route('/reservations/travel', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def create_travel_reservation():
     try:
         data = request.get_json()
@@ -71,7 +71,7 @@ def create_travel_reservation():
 
 
 @reservation_bp.route('/reservations/travel/<int:id>', methods=['PATCH'])
-@jwt_required()
+# @jwt_required()
 def update_travel_reservation(id):
     try:
         data = request.get_json()
@@ -114,7 +114,7 @@ def update_travel_reservation(id):
 
 
 @reservation_bp.route('/reservations/travel/<int:id>', methods=['DELETE'])
-@jwt_required()
+# @jwt_required()
 def delete_travel_reservation(id):
     try:
         reservation = Reservation_travel.query.get(id)
@@ -132,7 +132,7 @@ def delete_travel_reservation(id):
 
 # Accommodation Reservations Routes
 @reservation_bp.route('/reservations/accommodation', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_all_accommodation_reservations():
     try:
         reservations = Reservation_accomodation.query.all()
@@ -146,7 +146,7 @@ def get_all_accommodation_reservations():
         return jsonify({'error': str(e)}), 500
 
 @reservation_bp.route('/reservations/accommodation/<int:id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_accommodation_reservation(id):
     try:
         user_id = get_jwt_identity()
@@ -163,7 +163,7 @@ def get_accommodation_reservation(id):
         return jsonify({'error': str(e)}), 500
 
 @reservation_bp.route('/reservations/accommodation', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def create_accommodation_reservation():
     try:
         data = request.get_json()
@@ -208,7 +208,7 @@ def create_accommodation_reservation():
 
 
 @reservation_bp.route('/reservations/accommodation/<int:id>', methods=['PATCH'])
-@jwt_required()
+# @jwt_required()
 def update_accommodation_reservation(id):
     try:
         data = request.get_json()
@@ -249,7 +249,7 @@ def update_accommodation_reservation(id):
 
 
 @reservation_bp.route('/reservations/accommodation/<int:id>', methods=['DELETE'])
-@jwt_required()
+# @jwt_required()
 def delete_accommodation_reservation(id):
     try:
         reservation = Reservation_accomodation.query.get(id)

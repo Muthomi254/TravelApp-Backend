@@ -7,7 +7,7 @@ booking_bp = Blueprint('booking_bp', __name__)
 
 #travel booking
 @booking_bp.route('/bookings/travel', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def book_travel():
     try:
         current_user_id = get_jwt_identity()
@@ -26,7 +26,7 @@ def book_travel():
 
 
 @booking_bp.route('/bookings/accommodation', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def book_accommodation():
     try:
         current_user_id = get_jwt_identity()
@@ -54,7 +54,7 @@ def book_accommodation():
 
 
 @booking_bp.route('/bookings/travel/<int:id>', methods=['PATCH'])
-@jwt_required()
+# @jwt_required()
 def update_travel_booking(id):
     try:
         data = request.get_json()
@@ -87,7 +87,7 @@ def get_user_travel_bookings(user_id):
         return jsonify({'error': str(e)}), 500        
 
 @booking_bp.route('/bookings/travel/<int:id>', methods=['DELETE'])
-@jwt_required()
+# @jwt_required()
 def delete_travel_booking(id):
     try:
         booking = Travel_booking.query.get_or_404(id)
@@ -101,7 +101,7 @@ def delete_travel_booking(id):
 
 # Accommodation booking
 @booking_bp.route('/bookings/accommodation/<int:id>', methods=['PATCH'])
-@jwt_required()
+# @jwt_required()
 def update_accommodation_booking(id):    
     try:
         data = request.get_json()
@@ -156,7 +156,7 @@ def delete_accommodation_booking(id):
         return jsonify({'error': str(e)}), 500
 
 @booking_bp.route('/bookings/total-price', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_total_price():
     try:
         current_user_id = get_jwt_identity()
