@@ -159,18 +159,20 @@ def delete_accommodation_booking(id):
 @jwt_required()
 def get_total_price():
     try:
-        # Fetch all travel bookings
-        travel_bookings = Travel_booking.query.all()
-        # Calculate total price for all travel bookings
-        total_travel_price = sum(booking.travelling_service.price for booking in travel_bookings)
+        current_user_id = get_jwt_identity()
 
-        # Fetch all accommodation bookings
-        accomodation_bookings = Accomodation_booking.query.all()
-        # Calculate total price for all accommodation bookings
-        total_accomodation_price = sum(booking.accomodation_service.price_per_night for booking in accomodation_bookings)
+        # Fetch all travel reservations of the specific user
+        travel_reservations = Reservation_travel.query.filter_by(user_id=current_user_id).all()
+        # Calculate total price for all travel reservations
+        total_travel_price = sum(reservation.price_net for reservation in travel_reservations)
+
+        # Fetch all accommodation reservations of the specific user
+        accommodation_reservations = Reservation_accomodation.query.filter_by(user_id=current_user_id).all()
+        # Calculate total price for all accommodation reservations
+        total_accommodation_price = sum(reservation.price_net for reservation in accommodation_reservations)
 
         # Calculate total price for all bookings
-        total_price = total_travel_price + total_accomodation_price
+        total_price = total_travel_price + total_accommodation_price
         
         return jsonify({'total_price': total_price}), 200
     except Exception as e:

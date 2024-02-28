@@ -1,11 +1,8 @@
-"""(ft):
-adding user id column to travel and accomodation booking
+"""initial
 
-
-
-Revision ID: a65b626d4a91
+Revision ID: af9ff6c875e5
 Revises: 
-Create Date: 2024-02-24 18:29:13.142815
+Create Date: 2024-02-28 10:31:37.003608
 
 """
 from alembic import op
@@ -13,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a65b626d4a91'
+revision = 'af9ff6c875e5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -70,13 +67,15 @@ def upgrade():
     sa.Column('ts_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=64), nullable=False),
     sa.Column('seats', sa.Integer(), nullable=True),
-    sa.Column('depurture_time', sa.DateTime(), nullable=False),
+    sa.Column('departure_time', sa.DateTime(), nullable=False),
     sa.Column('arrival_time', sa.DateTime(), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('price', sa.Float(), nullable=False),
-    sa.Column('depurture_city', sa.String(length=32), nullable=False),
+    sa.Column('departure_city', sa.String(length=32), nullable=False),
     sa.Column('arrival_city', sa.String(length=32), nullable=False),
     sa.Column('registration_number', sa.String(length=9), nullable=True),
+    sa.Column('image', sa.String(length=255), nullable=True),
+    sa.Column('vehicle_type', sa.Enum('Planes', 'Buses', 'Cars', name='vehicle_type_enum'), nullable=True),
     sa.Column('company_id', sa.String(length=6), nullable=True),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ),
     sa.PrimaryKeyConstraint('ts_id'),
@@ -140,16 +139,20 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('accomodation_reservation_id', sa.Integer(), nullable=True),
     sa.Column('accomodation_service_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['accomodation_reservation_id'], ['reservation(accomodation).id'], ),
     sa.ForeignKeyConstraint(['accomodation_service_id'], ['accomodation_services.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], name='fk_accomodation_bookings_user_id'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('travel_bookings',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('travelling_reservation_id', sa.Integer(), nullable=True),
     sa.Column('travelling_service_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['travelling_reservation_id'], ['reservation(travel).id'], ),
     sa.ForeignKeyConstraint(['travelling_service_id'], ['travelling_services.ts_id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], name='fk_travel_bookings_user_id'),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
