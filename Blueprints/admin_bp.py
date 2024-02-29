@@ -5,7 +5,7 @@ from flask_jwt_extended import create_access_token,get_jwt_identity,jwt_required
 
 admin_bp=Blueprint("admin",__name__)
 
-@admin_bp.route('/admin_login')
+@admin_bp.route('/admin_login',methods=["POST"])
 def  admin_login():
     data= request.get_json()
     

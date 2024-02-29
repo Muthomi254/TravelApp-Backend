@@ -159,13 +159,14 @@ def delete_accommodation_booking(id):
 @jwt_required()
 def get_total_price():
     try:
-        # Fetch all travel bookings
-        travel_bookings = Travel_booking.query.all()
+        user_id=get_jwt_identity()
+        travel_bookings = Travel_booking.query.filter_by(user_id=user_id).all()
+
         # Calculate total price for all travel bookings
         total_travel_price = sum(booking.travelling_service.price for booking in travel_bookings)
 
         # Fetch all accommodation bookings
-        accomodation_bookings = Accomodation_booking.query.all()
+        accomodation_bookings = Accomodation_booking.query.filter_by(user_id=user_id).all()
         # Calculate total price for all accommodation bookings
         total_accomodation_price = sum(booking.accomodation_service.price_per_night for booking in accomodation_bookings)
 
