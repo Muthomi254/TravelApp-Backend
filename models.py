@@ -1,6 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
+from sqlalchemy import func, ForeignKeyConstraint
+from sqlalchemy_utils import JSONType
+from sqlalchemy import Enum
+
 
 db=SQLAlchemy()
 
@@ -17,6 +21,9 @@ class User(db.Model, SerializerMixin):
     is_suspended=db.Column(db.Boolean(), default=False)
     
     
+
+
+
 class Travelling_service(db.Model, SerializerMixin):
     
     __tablename__ = "travelling_services"
@@ -24,15 +31,18 @@ class Travelling_service(db.Model, SerializerMixin):
     id= db.Column("ts_id",db.Integer, primary_key=True)
     name=db.Column(db.String(64), nullable=False)
     seats=db.Column(db.Integer, default=1)
-    depurture_time=db.Column(db.DateTime, nullable=False)
+    departure_time=db.Column(db.DateTime, nullable=False)
     arrival_time=db.Column(db.DateTime, nullable=False)
     description=db.Column(db.Text)
     price=db.Column(db.Float, nullable=False)
-    depurture_city=db.Column(db.String(32), nullable=False)
+    departure_city=db.Column(db.String(32), nullable=False)
     arrival_city=db.Column(db.String(32), nullable=False)
     registration_number = db.Column(db.String(9), unique=True)
-    
+    image=db.Column(db.String(255))  # Assuming the image path will be stored
+    vehicle_type = db.Column(Enum('Planes', 'Buses', 'Cars', name='vehicle_type_enum'))  # Enum for fixed vehicle types
+
     company_id=db.Column(db.String(6),db.ForeignKey('companies.id'))
+
 
 class Accomodation_service(db.Model, SerializerMixin):
     
@@ -107,9 +117,16 @@ class Reservation_travel(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     people_included = db.Column(db.SmallInteger, nullable=False)
     date = db.Column(db.DateTime(), server_default=db.func.now())
+    price_net = db.Column(db.Integer)
+    service_id = db.Column(db.Integer, db.ForeignKey('travelling_services.ts_id'), nullable=False)
     
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete="CASCADE"), nullable=False)  # Update this line
     user = db.relationship('User', backref="reservation_travel")
+
+    # Add a named foreign key constraint
+    __table_args__ = (
+        ForeignKeyConstraint(['service_id'], ['travelling_services.ts_id'], name='fk_reservation_travel_service_id'),
+    )
 
     
 class Reservation_accomodation(db.Model, SerializerMixin):
@@ -123,11 +140,20 @@ class Reservation_accomodation(db.Model, SerializerMixin):
     checkout = db.Column(db.Date)
     days_in_room = db.Column(db.Integer)
     rooms = db.Column(db.Integer)
+    service_id = db.Column(db.Integer, db.ForeignKey('accomodation_services.id'), nullable=False)
     
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete="CASCADE"), nullable=False)  # Update this line
     user = db.relationship("User", backref="reservation_accomodation")
+
+    service_id = db.Column(db.Integer, db.ForeignKey('accomodation_services.id'), nullable=False)
+    service = db.relationship('Accomodation_service', backref='reservations')
     
     price_net = db.Column(db.Integer)
+
+    # Add a named foreign key constraint
+    __table_args__ = (
+        ForeignKeyConstraint(['service_id'], ['accomodation_services.id'], name='fk_reservation_accomodation_service_id'),
+    )
 
     
     
@@ -141,7 +167,8 @@ class Travel_booking(db.Model, SerializerMixin):
     travelling_reservation = db.relationship("Reservation_travel", backref="travel_bookings")
     travelling_service = db.relationship("Travelling_service", backref="travel_bookings")
 
-    
+    user_id = db.Column(db.Integer, db.ForeignKey("Users.id", name="fk_travel_bookings_user_id")) # Adjust the foreign key as per your user model
+
     
 class Accomodation_booking(db.Model, SerializerMixin):
     
@@ -153,6 +180,29 @@ class Accomodation_booking(db.Model, SerializerMixin):
     accomodation_reservation_id = db.Column(db.Integer, db.ForeignKey("reservation(accomodation).id"))
     accomodation_service_id = db.Column(db.Integer, db.ForeignKey("accomodation_services.id"))
     
+    user_id = db.Column(db.Integer, db.ForeignKey("Users.id", name="fk_accomodation_bookings_user_id"))   # Adjust the foreign key as per your user model
+
     accomodation_service = db.relationship("Accomodation_service", backref="accomodation_bookings")
     accomodation_reservation = db.relationship("Reservation_accomodation", backref="accomodation_bookings")
+
+    user = db.relationship("User", backref="accomodation_bookings")
+    # user_id = db.Column(db.Integer, db.ForeignKey("Users.id", name="fk_accomodation_bookings_user_id"))   # Adjust the foreign key as per your user model
+
+class RevokedToken(db.Model):
+    __tablename__ = 'revoked_tokens'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(120), unique=True, nullable=False)  # Add unique constraint
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'))
+    
+    user = db.relationship('User', backref='revoked_tokens')
+    company = db.relationship('Company', backref='revoked_tokens')
+
+    @staticmethod
+    def is_jti_blacklisted(jwt_header, jwt_data):
+        jti = jwt_data['jti']
+        query = RevokedToken.query.filter_by(jti=jti).first()
+        return bool(query)
+
 

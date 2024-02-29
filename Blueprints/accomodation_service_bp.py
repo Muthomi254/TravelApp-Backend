@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from models import db, Accomodation_service
+from flask_jwt_extended import jwt_required
 
 # Create a Blueprint for service routes
 
@@ -7,6 +8,7 @@ accomodation_service_bp = Blueprint('accomodation_service_bp', __name__)
 
 # Route to get all accommodation services
 @accomodation_service_bp.route('/accommodation', methods=['GET'])
+@jwt_required()
 def get_accommodation_services():
     accommodation_services = Accomodation_service.query.all()
     serialized_services = []
@@ -26,6 +28,7 @@ def get_accommodation_services():
 
 # Route to get a single accommodation service by ID
 @accomodation_service_bp.route('/accommodation/<int:service_id>', methods=['GET'])
+@jwt_required()
 def get_accommodation_service(service_id):
     service = Accomodation_service.query.get_or_404(service_id)
     serialized_service = {
@@ -44,6 +47,7 @@ def get_accommodation_service(service_id):
 
 # Route to create a new accommodation service
 @accomodation_service_bp.route('/accommodation', methods=['POST'])
+@jwt_required()
 def create_accommodation_service():
     data = request.json
     new_service = Accomodation_service(**data)
@@ -53,6 +57,7 @@ def create_accommodation_service():
 
 # Route to update an existing accommodation service
 @accomodation_service_bp.route('/accommodation/<int:service_id>', methods=['PUT', 'PATCH'])
+@jwt_required()
 def update_accommodation_service(service_id):
     service = Accomodation_service.query.get_or_404(service_id)
     data = request.json
@@ -75,6 +80,7 @@ def update_accommodation_service(service_id):
     return jsonify(serialized_service)
 # Route to delete an existing accommodation service
 @accomodation_service_bp.route('/accommodation/<int:service_id>', methods=['DELETE'])
+@jwt_required()
 def delete_accommodation_service(service_id):
     service = Accomodation_service.query.get_or_404(service_id)
     db.session.delete(service)

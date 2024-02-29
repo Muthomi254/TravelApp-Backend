@@ -1,5 +1,19 @@
-# Pipfile
-# Pipfile.lock
+# Python specific
 *.pyc
-# .gitignore
+__pycache__/
+
+# Flask specific
+instance/
+.pytest_cache/
+.coverage
+htmlcov/
+.coverage.*
+*.egg-info/
+dist/
+build/
+.env
 instance/db.sqlite
+
+# Pipenv specific
+Pipfile
+Pipfile.lock
