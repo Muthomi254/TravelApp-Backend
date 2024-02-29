@@ -8,36 +8,9 @@ from datetime import datetime
 traveling_service_bp = Blueprint('traveling_service_bp', __name__)
 
 # Route to get all travel services
-@traveling_service_bp.route('/travel', methods=['GET'])
-# @jwt_required()
-def get_travel_services():
-    try:
-        travel_services = Travelling_service.query.all()
-        serialized_services = []
-        for service in travel_services:
-            serialized_service = {
-                "id": service.id,
-                "name": service.name,
-                "seats": service.seats,
-                "departure_time": service.departure_time.strftime('%Y-%m-%d %H:%M:%S'),
-                "arrival_time": service.arrival_time.strftime('%Y-%m-%d %H:%M:%S'),
-                "description": service.description,
-                "price": service.price,
-                "departure_city": service.departure_city,
-                "arrival_city": service.arrival_city,
-                "registration_number": service.registration_number,
-                "company_id": service.company_id,
-                "image": service.image,  # Include image in serialized service
-                "vehicle_type": service.vehicle_type
-            }
-            serialized_services.append(serialized_service)
-        return jsonify({"success": True, "data": serialized_services}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 # Route to get a single travel service by ID
 @traveling_service_bp.route('/travel/<int:service_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_travel_service(service_id):
     try:
         service = Travelling_service.query.get_or_404(service_id)
@@ -97,7 +70,7 @@ def create_travel_service():
 
 # Route to update an existing travel service
 @traveling_service_bp.route('/travel/<int:service_id>', methods=['PUT', 'PATCH'])
-# @jwt_required()
+@jwt_required()
 def update_travel_service(service_id):
     try:
         service = Travelling_service.query.get_or_404(service_id)
@@ -141,7 +114,7 @@ def update_travel_service(service_id):
 
 # Route to delete an existing travel service
 @traveling_service_bp.route('/travel/<int:service_id>', methods=['DELETE'])
-# @jwt_required()
+@jwt_required()
 def delete_travel_service(service_id):
     try:
         service = Travelling_service.query.get_or_404(service_id)

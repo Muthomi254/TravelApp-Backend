@@ -18,7 +18,7 @@ migrate = Migrate(app, db)
 
 # Initialize JWT and CORS
 jwt = JWTManager(app)
-CORS(app)  # Enable CORS for all routes
+CORS(app, supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])  # Enable CORS for all routes and allow PATCH method
 
 
 # Add token revocation functionality@jwt.token_in_blocklist_loader
@@ -61,12 +61,12 @@ app.register_blueprint(company_auth_bp, url_prefix='/company_auth') #add this be
 
 
 # Move after_request to the main app object
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    return response
+# @app.after_request
+# def after_request(response):
+#     response.headers.add('Access-Control-Allow-Origin', '*')
+#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+#     return response
 
 if __name__ == '__main__':
     app.run(debug=True)
