@@ -70,9 +70,17 @@ def create_travel_service():
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
+        
+
+
         # Convert string representations of time to datetime objects
         data['departure_time'] = datetime.strptime(data['departure_time'], '%Y-%m-%dT%H:%M:%S')
         data['arrival_time'] = datetime.strptime(data['arrival_time'], '%Y-%m-%dT%H:%M:%S')
+
+        # Check if registration number already exists
+        existing_service = Travelling_service.query.filter_by(registration_number=data['registration_number']).first()
+        if existing_service:
+            return jsonify({"error": "Registration number already exists"}), 400
 
         new_service = Travelling_service(**data)
         db.session.add(new_service)
@@ -83,6 +91,8 @@ def create_travel_service():
         return jsonify({"error": "Invalid data format"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 
 
 # Route to update an existing travel service
